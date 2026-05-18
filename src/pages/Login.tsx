@@ -3,10 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Eye, EyeOff, Loader2, AlertCircle, Info } from 'lucide-react';
 
-const demoCredentials = {
-  admin: { email: 'captain@barangay.gov.ph', password: 'admin123' },
-  user: { email: 'pedro@email.com', password: 'user123' },
-};
 
 export default function Login() {
   const { login } = useAuth();
@@ -39,12 +35,6 @@ export default function Login() {
     }
   };
 
-  const fillDemo = (role: 'admin' | 'user') => {
-    const creds = demoCredentials[role];
-    setEmail(creds.email);
-    setPassword(creds.password);
-    setError('');
-  };
 
   return (
     <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4 py-12">
@@ -62,48 +52,6 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Backend connection info */}
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <div className="flex items-start gap-3">
-            <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-emerald-900">Backend: Aiven PostgreSQL</p>
-              <p className="text-xs text-emerald-700">
-                Make sure the Node.js server is running on port 3001. 
-                Run <code className="rounded bg-emerald-100 px-1.5 py-0.5 font-mono">npm run server</code> to start.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Demo credentials info */}
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-          <div className="flex items-start gap-3">
-            <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-blue-900">Demo Accounts</p>
-              <p className="text-xs text-blue-700">After running <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">npm run db:seed</code></p>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => fillDemo('admin')}
-                  className="block w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-left text-xs transition-colors hover:bg-blue-50"
-                >
-                  <span className="font-semibold text-blue-800">Admin:</span>{' '}
-                  <span className="text-slate-600">captain@barangay.gov.ph / admin123</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemo('user')}
-                  className="block w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-left text-xs transition-colors hover:bg-blue-50"
-                >
-                  <span className="font-semibold text-blue-800">Citizen:</span>{' '}
-                  <span className="text-slate-600">pedro@email.com / user123</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
