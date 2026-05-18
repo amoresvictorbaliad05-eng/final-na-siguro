@@ -69,26 +69,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
+//app.use((req, res) => {
+//  res.status(404).json({ error: 'Route not found' });
+//});
 
-app.get("/", (req, res) => {
-  res.send("Barangay Bantay API running");
-});
-
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    database: "connected"
-  });
-});
 
 const __dirname = path.resolve();
 
 app.use(express.static(path.join(__dirname, "dist")));
 
-app.get("/*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 // =============================================
