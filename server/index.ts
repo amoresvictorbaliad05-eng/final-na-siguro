@@ -71,6 +71,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
+app.get("/", (req, res) => {
+  res.send("Barangay Bantay API running");
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    database: "connected"
+  });
+});
 
 // =============================================
 // START SERVER
