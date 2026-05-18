@@ -63,7 +63,7 @@ export default function Login() {
         </div>
 
         {/* Backend connection info */}
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+{/*       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
           <div className="flex items-start gap-3">
             <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
             <div className="space-y-2">
@@ -75,7 +75,7 @@ export default function Login() {
             </div>
           </div>
         </div>
-
+*/}
         {/* Demo credentials info */}
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-start gap-3">
@@ -106,14 +106,14 @@ export default function Login() {
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+{/*        <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           {error && (
             <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
-
+*/}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-slate-700">
               Email Address
