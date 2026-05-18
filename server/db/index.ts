@@ -14,8 +14,7 @@ const pool = new Pool({
   port: parseInt(process.env.AIVEN_DB_PORT || '5432'),
   database: process.env.AIVEN_DB_NAME,
   ssl: {
-    rejectUnauthorized: true,
-    ca: process.env.AIVEN_CA_CERT, // CA certificate from Aiven console
+    rejectUnauthorized: false
   },
   max: 20, // Maximum pool size
   idleTimeoutMillis: 30000,
