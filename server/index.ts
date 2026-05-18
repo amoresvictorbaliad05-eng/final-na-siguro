@@ -1,3 +1,4 @@
+import path from "path";
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -71,6 +72,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
+
 app.get("/", (req, res) => {
   res.send("Barangay Bantay API running");
 });
@@ -82,6 +84,13 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+const __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 // =============================================
 // START SERVER
 // =============================================
