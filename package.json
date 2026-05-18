@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "tsx watch server/index.ts",
+    "server": "tsx server/index.ts",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "db:init": "tsx server/db/init.ts",
     "db:seed": "tsx server/db/seed.ts",
