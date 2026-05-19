@@ -2,8 +2,10 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import pool from '../db/index.js';
-import { generateToken, authenticate, AuthRequest, AuthUser } from '../middleware/auth.js';
+import { generateToken, authenticate, AuthUser } from '../middleware/auth.js';
 
+import passport from "passport";
+import jwt from "jsonwebtoken";
 const router = Router();
 
 // =============================================
@@ -161,7 +163,7 @@ router.post(
 // =============================================
 // GET /api/auth/me
 // =============================================
-router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/me', authenticate, async (req, res: Response) => {
   try {
     const result = await pool.query(
       'SELECT id, name, email, phone, address, barangay, role, is_verified, created_at FROM users WHERE id = $1',
@@ -192,4 +194,33 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  (req: any, res) => {
+    const user = req.user;
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
+    // redirect back to frontend with token
+    res.redirect(
+      `${process.env.FRONTEND_URL}/auth-success?token=${token}`
+    );
+  }
+);
 export default router;

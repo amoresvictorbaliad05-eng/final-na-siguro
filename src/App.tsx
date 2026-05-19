@@ -13,6 +13,7 @@ import Reports from './pages/Reports';
 import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
+import AuthSuccess from './pages/AuthSuccess';
 
 export default function App() {
   return (
@@ -22,9 +23,16 @@ export default function App() {
           <div className="min-h-screen bg-slate-50 font-sans antialiased">
             <Navbar />
             <Routes>
+
+              {/* PUBLIC ROUTES */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/* 🔥 STEP 7 ADDED HERE */}
+              <Route path="/auth-success" element={<AuthSuccess />} />
+
+              {/* PROTECTED ROUTES */}
               <Route
                 path="/dashboard"
                 element={
@@ -33,6 +41,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/report"
                 element={
@@ -41,6 +50,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/my-reports"
                 element={
@@ -49,6 +59,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/reports"
                 element={
@@ -57,6 +68,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/reports/:id"
                 element={
@@ -65,6 +77,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/analytics"
                 element={
@@ -73,6 +86,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/users"
                 element={
@@ -81,6 +95,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/profile"
                 element={
@@ -89,7 +104,10 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* FALLBACK */}
               <Route path="*" element={<Navigate to="/" replace />} />
+
             </Routes>
           </div>
         </ReportProvider>

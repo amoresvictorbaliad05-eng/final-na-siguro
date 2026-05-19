@@ -1,7 +1,11 @@
 import path from "path";
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+import * as passport from "passport";
+import session from "express-session";
+import setupPassport from "./config/passport";
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -37,6 +41,18 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "fallback_secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+setupPassport();
 // =============================================
 // API ROUTES
 // =============================================
