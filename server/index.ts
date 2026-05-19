@@ -3,9 +3,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import * as passport from "passport";
+import * as passportModule from "passport";
 import session from "express-session";
 import setupPassport from "./config/passport";
+
+// Safety fallback to handle Passport's CommonJS export in an ESM runtime environment
+const passport: any = (passportModule as any).default || passportModule;
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -86,7 +89,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // 404 handler
 //app.use((req, res) => {
-//  res.status(404).json({ error: 'Route not found' });
+// res.status(404).json({ error: 'Route not found' });
 //});
 
 
@@ -104,7 +107,7 @@ app.listen(PORT, () => {
   console.log(`
   ╔══════════════════════════════════════════════════════════╗
   ║                                                          ║
-  ║   🏘️  Barangay Bantay API Server                         ║
+  ║   🏘️  Barangay Bantay API Server                          ║
   ║                                                          ║
   ║   🚀 Server running on: http://localhost:${PORT}            ║
   ║   📊 Database: Aiven PostgreSQL                          ║
@@ -118,7 +121,7 @@ app.listen(PORT, () => {
   ║   • POST   /api/reports                                  ║
   ║   • PATCH  /api/reports/:id/status                       ║
   ║   • GET    /api/users                                    ║
-  ║   • GET    /api/analytics/*                              ║
+  ║   • GET    /api/analytics/* ║
   ║   • GET    /api/logs                                     ║
   ║   • GET    /api/notifications                            ║
   ║                                                          ║
