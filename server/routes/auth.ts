@@ -4,7 +4,7 @@ import { body, validationResult } from 'express-validator';
 import pool from '../db/index.js';
 import { generateToken, authenticate, AuthUser } from '../middleware/auth.js';
 
-import passport from "passport";
+import * as passport from "passport";
 import jwt from "jsonwebtoken";
 const router = Router();
 

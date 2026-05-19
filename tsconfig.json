@@ -7,8 +7,12 @@
     "skipLibCheck": true,
     "types": ["node"],
 
+    /* IMPORTANT FIX FOR PASSPORT + NODE MODULES */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
