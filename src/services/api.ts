@@ -1,4 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL + "/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://final1website-for-barangay.onrender.com";
+
+const BASE = `${API_BASE_URL}/api`;
 
 interface RequestOptions {
   method?: string;
@@ -23,7 +27,7 @@ async function request(endpoint: string, options: RequestOptions = {}) {
   }
 
   const response = await fetch(
-    `${API_BASE_URL}${endpoint}`,
+    `${BASE}${endpoint}`,
     config
   );
 
