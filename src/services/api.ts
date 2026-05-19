@@ -13,7 +13,7 @@ async function request(endpoint: string, options: RequestOptions = {}) {
     method: options.method || "GET",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
   };
@@ -22,100 +22,61 @@ async function request(endpoint: string, options: RequestOptions = {}) {
     config.body = JSON.stringify(options.body);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const response = await fetch(
+    `${API_BASE_URL}${endpoint}`,
+    config
+  );
 
-  // IMPORTANT: handle HTML responses (fix your error)
-  const contentType = response.headers.get("content-type");
+  const data = await response.json();
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Request failed");
+    throw new Error(data.error || "Request failed");
   }
 
-  if (contentType && contentType.includes("application/json")) {
-    return response.json();
-  }
-
-  // fallback safety (prevents "<!doctype html>" crash)
-  const text = await response.text();
-  throw new Error(text);
+  return data;
 }
 
-// ========================
-// AUTH
-// ========================
-export const api = {
-  login: async (email: string, password: string) => {
-    return request("/auth/login", {
+const api = {
+  login: (email: string, password: string) =>
+    request("/auth/login", {
       method: "POST",
       body: { email, password },
-    });
-  },
+    }),
 
-  register: async (data: any) => {
-    return request("/auth/register", {
+  register: (data: any) =>
+    request("/auth/register", {
       method: "POST",
       body: data,
-    });
-  },
+    }),
 
-  getProfile: async () => {
-    return request("/auth/me");
-  },
+  getProfile: () =>
+    request("/auth/me"),
 
   logout: () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("barangay_auth");
   },
 
-  // ========================
-  // REPORTS
-  // ========================
-  getReports: async () => {
-    return request("/reports");
-  },
+  getReports: () =>
+    request("/reports"),
 
-  createReport: async (data: any) => {
-    return request("/reports", {
+  createReport: (data: any) =>
+    request("/reports", {
       method: "POST",
       body: data,
-    });
-  },
+    }),
 
-  updateReportStatus: async (id: string, status: string) => {
-    return request(`/reports/${id}/status`, {
-      method: "PATCH",
-      body: { status },
-    });
-  },
+  getUsers: () =>
+    request("/users"),
 
-  // ========================
-  // USERS
-  // ========================
-  getUsers: async () => {
-    return request("/users");
-  },
+  getAnalytics: () =>
+    request("/analytics"),
 
-  // ========================
-  // ANALYTICS
-  // ========================
-  getAnalytics: async () => {
-    return request("/analytics");
-  },
+  getLogs: () =>
+    request("/logs"),
 
-  // ========================
-  // LOGS
-  // ========================
-  getLogs: async () => {
-    return request("/logs");
-  },
-
-  // ========================
-  // NOTIFICATIONS
-  // ========================
-  getNotifications: async () => {
-    return request("/notifications");
-  },
+  getNotifications: () =>
+    request("/notifications")
 };
 
 export default api;
