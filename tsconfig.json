@@ -11,8 +11,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    /* Bundler mode */
-    "moduleResolution": "node",
+    /* Modern Bundler mode */
+    "moduleResolution": "bundler", 
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -20,9 +20,8 @@
     "jsx": "react-jsx",
 
     /* Path mapping */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
 
     /* Linting */
