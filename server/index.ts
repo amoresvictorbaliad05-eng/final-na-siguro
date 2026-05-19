@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import * as passport from "passport";
-import session from "express-session";
+import * as session from "express-session";
 import setupPassport from "./config/passport";
 
 // Import routes
