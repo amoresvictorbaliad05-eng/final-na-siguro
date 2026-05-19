@@ -4,9 +4,13 @@ import { body, validationResult } from 'express-validator';
 import pool from '../db/index.js';
 import { generateToken, authenticate, AuthUser } from '../middleware/auth.js';
 
-import * as passport from "passport";
+import * as passportModule from "passport";
 import jwt from "jsonwebtoken";
+
 const router = Router();
+
+// Safety fallback to handle Passport's CommonJS export in an ESM runtime environment
+const passport: any = (passportModule as any).default || passportModule;
 
 // =============================================
 // POST /api/auth/register
@@ -194,6 +198,9 @@ router.get('/me', authenticate, async (req, res: Response) => {
   }
 });
 
+// =============================================
+// GOOGLE AUTHENTICATION ROUTES
+// =============================================
 router.get(
   "/google",
   passport.authenticate("google", {
@@ -223,4 +230,5 @@ router.get(
     );
   }
 );
+
 export default router;
