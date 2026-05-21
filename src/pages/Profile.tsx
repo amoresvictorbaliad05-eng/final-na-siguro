@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportContext';
 import api from '../services/api';
+import { Link } from "react-router-dom";
 import {
   Mail,
   Phone,
@@ -65,6 +66,7 @@ export default function Profile() {
         );
 
         setEditing(false);
+        window.location.reload();
       } else {
         console.error('Update failed:', result.error);
       }
@@ -119,13 +121,37 @@ export default function Profile() {
               </div>
 
               {!editing ? (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white"
-                >
-                  <Edit size={18} />
-                  Edit Profile
-                </button>
+                <div className="flex gap-2">
+
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white"
+                  >
+                    <Edit size={18} />
+                    Edit Profile
+                  </button>
+
+                  <Link to="/edit-profile">
+
+                    <button
+                      className="
+                      flex
+                      items-center
+                      gap-2
+                      rounded-xl
+                      bg-indigo-600
+                      px-4
+                      py-2
+                      text-white
+                      "
+                    >
+                      <Edit size={18}/>
+                      Edit Info
+                    </button>
+
+                  </Link>
+
+                </div>
               ) : (
                 <div className="flex gap-2">
 

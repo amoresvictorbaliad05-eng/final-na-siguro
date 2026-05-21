@@ -15,6 +15,7 @@ import Users from './pages/Users';
 import Profile from './pages/Profile';
 import AuthSuccess from './pages/AuthSuccess';
 import Notifications from './pages/Notifications';
+import EditProfile from "./pages/EditProfile";
 
 export default function App() {
   return (
@@ -24,11 +25,13 @@ export default function App() {
           <div className="min-h-screen bg-slate-50 font-sans antialiased">
             <Navbar />
             <Routes>
+              
 
               {/* PUBLIC ROUTES */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
 
               {/* 🔥 STEP 7 ADDED HERE */}
               <Route path="/auth-success" element={<AuthSuccess />} />

@@ -10,38 +10,62 @@ interface RequestOptions {
   body?: any;
 }
 
-async function request(endpoint: string, options: RequestOptions = {}) {
+async function request(
+  endpoint: string,
+  options: RequestOptions = {}
+) {
   const token = localStorage.getItem("auth_token");
 
   const config: RequestInit = {
     method: options.method || "GET",
+
     headers: {
       "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
+
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
+
       ...options.headers,
     },
   };
 
   if (options.body) {
-    config.body = JSON.stringify(options.body);
+    config.body = JSON.stringify(
+      options.body
+    );
   }
 
-  const response = await fetch(`${BASE}${endpoint}`, config);
+  const response = await fetch(
+    `${BASE}${endpoint}`,
+    config
+  );
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Request failed");
+    throw new Error(
+      data.error || "Request failed"
+    );
   }
 
   return data;
 }
 
 const api = {
-  login: (email: string, password: string) =>
+  /**
+   * AUTH
+   */
+  login: (
+    email: string,
+    password: string
+  ) =>
     request("/auth/login", {
       method: "POST",
-      body: { email, password },
+      body: {
+        email,
+        password,
+      },
     }),
 
   register: (data: any) =>
@@ -50,14 +74,38 @@ const api = {
       body: data,
     }),
 
-  getProfile: () => request("/auth/me"),
+  getProfile: () =>
+    request("/auth/me"),
 
   logout: () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("barangay_auth");
+    localStorage.removeItem(
+      "auth_token"
+    );
+
+    localStorage.removeItem(
+      "barangay_auth"
+    );
   },
 
-  getReports: () => request("/reports"),
+  /**
+   * PROFILE UPDATE
+   * Updates logged-in user's profile
+   */
+  updateProfile: (data: {
+    name: string;
+    phone: string;
+    address: string;
+  }) =>
+    request("/auth/profile", {
+      method: "PUT",
+      body: data,
+    }),
+
+  /**
+   * REPORTS
+   */
+  getReports: () =>
+    request("/reports"),
 
   createReport: (data: any) =>
     request("/reports", {
@@ -65,24 +113,29 @@ const api = {
       body: data,
     }),
 
-  getUsers: () => request("/users"),
+  /**
+   * USERS
+   */
+  getUsers: () =>
+    request("/users"),
 
-  getAnalytics: () => request("/analytics"),
+  /**
+   * ANALYTICS
+   */
+  getAnalytics: () =>
+    request("/analytics"),
 
-  getLogs: () => request("/logs"),
+  /**
+   * LOGS
+   */
+  getLogs: () =>
+    request("/logs"),
 
-  getNotifications: () => request("/notifications"),
-
-  // ✅ FIXED: now INSIDE api object + correct BASE
-  updateProfile: (data: {
-    name: string;
-    phone: string;
-    address: string;
-  }) =>
-    request("/users/profile", {
-      method: "PATCH",
-      body: data,
-    }),
+  /**
+   * NOTIFICATIONS
+   */
+  getNotifications: () =>
+    request("/notifications"),
 };
 
 export default api;
