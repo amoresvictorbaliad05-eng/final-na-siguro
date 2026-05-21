@@ -122,7 +122,7 @@ export default function Login() {
             </button>
 
             {/* GOOGLE LOGIN */}
-            <button
+            {/* <button
               type="button"
               onClick={() => {
                 const API_URL =
@@ -135,6 +135,7 @@ export default function Login() {
             >
               Continue with Google
             </button>
+            */}
 
           </div>
 
