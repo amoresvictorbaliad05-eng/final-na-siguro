@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportContext';
+import api from '../services/api';
 import {
   Mail,
   Phone,
   MapPin,
   Calendar,
   Shield,
-  CheckCircle2,
-  FileText,
-  Clock,
   Edit,
   Save,
   X
@@ -35,37 +33,34 @@ export default function Profile() {
 
   const stats = {
     total: userReports.length,
-    pending: userReports.filter(
-      r => r.status === "pending"
-    ).length,
-    approved: userReports.filter(
-      r => r.status === "approved"
-    ).length,
-    resolved: userReports.filter(
-      r => r.status === "resolved"
-    ).length,
+    pending: userReports.filter(r => r.status === "pending").length,
+    approved: userReports.filter(r => r.status === "approved").length,
+    resolved: userReports.filter(r => r.status === "resolved").length,
   };
 
+  // ✅ FIXED SAVE FUNCTION (DATABASE UPDATE)
   const handleSave = async () => {
     try {
-
-      // Temporary local update
-      const updatedUser = {
-        ...user,
+      const result = await api.updateProfile({
         name: formData.name,
         phone: formData.phone,
         address: formData.address,
-      };
+      });
 
-      localStorage.setItem(
-        "barangay_auth",
-        JSON.stringify(updatedUser)
-      );
+      if (result?.user) {
+        // update local storage with backend response
+        localStorage.setItem(
+          "barangay_auth",
+          JSON.stringify(result.user)
+        );
 
-      window.location.reload();
-
+        setEditing(false);
+        window.location.reload();
+      } else {
+        console.error("Update failed:", result);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Profile update error:", error);
     }
   };
 
@@ -75,7 +70,7 @@ export default function Profile() {
 
         <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
 
-          <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-700"/>
+          <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-700" />
 
           <div className="px-6 pb-6">
 
@@ -92,10 +87,12 @@ export default function Profile() {
                   {editing ? (
                     <input
                       value={formData.name}
-                      onChange={(e)=>setFormData({
-                        ...formData,
-                        name:e.target.value
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          name: e.target.value
+                        })
+                      }
                       className="border rounded-lg px-3 py-2"
                     />
                   ) : (
@@ -114,10 +111,10 @@ export default function Profile() {
 
               {!editing ? (
                 <button
-                  onClick={()=>setEditing(true)}
+                  onClick={() => setEditing(true)}
                   className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white"
                 >
-                  <Edit size={18}/>
+                  <Edit size={18} />
                   Edit Profile
                 </button>
               ) : (
@@ -127,15 +124,15 @@ export default function Profile() {
                     onClick={handleSave}
                     className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-white"
                   >
-                    <Save size={18}/>
+                    <Save size={18} />
                     Save
                   </button>
 
                   <button
-                    onClick={()=>setEditing(false)}
+                    onClick={() => setEditing(false)}
                     className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-white"
                   >
-                    <X size={18}/>
+                    <X size={18} />
                     Cancel
                   </button>
 
@@ -149,62 +146,54 @@ export default function Profile() {
               <div className="space-y-4">
 
                 <div className="flex gap-3">
-                  <Mail/>
+                  <Mail />
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Email
-                    </p>
+                    <p className="text-xs text-gray-500">Email</p>
                     <p>{user.email}</p>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Phone/>
-
+                  <Phone />
                   <div>
-
-                    <p className="text-xs text-gray-500">
-                      Phone
-                    </p>
+                    <p className="text-xs text-gray-500">Phone</p>
 
                     {editing ? (
                       <input
                         value={formData.phone}
-                        onChange={(e)=>setFormData({
-                          ...formData,
-                          phone:e.target.value
-                        })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            phone: e.target.value
+                          })
+                        }
                         className="border rounded-lg px-3 py-2"
                       />
                     ) : (
                       <p>{user.phone}</p>
                     )}
-
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <MapPin/>
-
+                  <MapPin />
                   <div>
-
-                    <p className="text-xs text-gray-500">
-                      Address
-                    </p>
+                    <p className="text-xs text-gray-500">Address</p>
 
                     {editing ? (
                       <input
                         value={formData.address}
-                        onChange={(e)=>setFormData({
-                          ...formData,
-                          address:e.target.value
-                        })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            address: e.target.value
+                          })
+                        }
                         className="border rounded-lg px-3 py-2"
                       />
                     ) : (
                       <p>{user.address}</p>
                     )}
-
                   </div>
                 </div>
 
@@ -213,32 +202,26 @@ export default function Profile() {
               <div className="space-y-4">
 
                 <div className="flex gap-3">
-                  <Calendar/>
+                  <Calendar />
                   <div>
                     <p className="text-xs text-gray-500">
                       Member Since
                     </p>
                     <p>
-                      {new Date(
-                        user.createdAt
-                      ).toLocaleDateString()}
+                      {new Date(user.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Shield/>
+                  <Shield />
                   <div>
                     <p className="text-xs text-gray-500">
                       Verification
                     </p>
-
                     <p>
-                      {user.isVerified
-                        ? "Verified"
-                        : "Pending"}
+                      {user.isVerified ? "Verified" : "Pending"}
                     </p>
-
                   </div>
                 </div>
 
@@ -247,38 +230,28 @@ export default function Profile() {
             </div>
 
           </div>
-
         </div>
 
-        {/* Stats */}
-
+        {/* STATS */}
         <div className="mt-6 grid grid-cols-4 gap-4">
 
           <div className="bg-white p-4 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {stats.total}
-            </p>
+            <p className="text-2xl font-bold">{stats.total}</p>
             <p>Total</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {stats.pending}
-            </p>
+            <p className="text-2xl font-bold">{stats.pending}</p>
             <p>Pending</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {stats.approved}
-            </p>
+            <p className="text-2xl font-bold">{stats.approved}</p>
             <p>Approved</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {stats.resolved}
-            </p>
+            <p className="text-2xl font-bold">{stats.resolved}</p>
             <p>Resolved</p>
           </div>
 
