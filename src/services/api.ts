@@ -26,10 +26,7 @@ async function request(endpoint: string, options: RequestOptions = {}) {
     config.body = JSON.stringify(options.body);
   }
 
-  const response = await fetch(
-    `${BASE}${endpoint}`,
-    config
-  );
+  const response = await fetch(`${BASE}${endpoint}`, config);
 
   const data = await response.json();
 
@@ -53,16 +50,14 @@ const api = {
       body: data,
     }),
 
-  getProfile: () =>
-    request("/auth/me"),
+  getProfile: () => request("/auth/me"),
 
   logout: () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("barangay_auth");
   },
 
-  getReports: () =>
-    request("/reports"),
+  getReports: () => request("/reports"),
 
   createReport: (data: any) =>
     request("/reports", {
@@ -70,17 +65,24 @@ const api = {
       body: data,
     }),
 
-  getUsers: () =>
-    request("/users"),
+  getUsers: () => request("/users"),
 
-  getAnalytics: () =>
-    request("/analytics"),
+  getAnalytics: () => request("/analytics"),
 
-  getLogs: () =>
-    request("/logs"),
+  getLogs: () => request("/logs"),
 
-  getNotifications: () =>
-    request("/notifications")
+  getNotifications: () => request("/notifications"),
+
+  // ✅ FIXED: now INSIDE api object + correct BASE
+  updateProfile: (data: {
+    name: string;
+    phone: string;
+    address: string;
+  }) =>
+    request("/users/profile", {
+      method: "PATCH",
+      body: data,
+    }),
 };
 
 export default api;
