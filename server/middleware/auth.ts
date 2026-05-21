@@ -1,61 +1,65 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
-export interface AuthUser {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-}
-
 export interface AuthRequest extends Request {
-  user?: AuthUser;
+  user?: {
+    id: number;
+    email?: string;
+    name?: string;
+    role: string;
+  };
 }
 
-// ============================
-// AUTHENTICATE MIDDLEWARE
-// ============================
-export const authenticate = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const authenticate: RequestHandler = (req, res, next) => {
+  const authReq = req as AuthRequest;
   try {
-    const header = req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
-    if (!header || !header.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "No token provided" });
+    if (!authHeader) {
+      res.status(401).json({
+        error: "Access denied. No token provided",
+      });
+      return;
     }
 
-    const token = header.split(" ")[1];
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET!
-    ) as AuthUser;
+      process.env.JWT_SECRET as string
+    ) as {
+      id: number;
+      role: string;
+      email?: string;
+      name?: string;
+    };
 
-    req.user = decoded;
+    authReq.user = decoded;
 
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+    console.error("AUTH ERROR:", err);
+
+    res.status(403).json({
+      error: "Invalid token",
+    });
   }
 };
 
-// ============================
-// REQUIRE ADMIN
-// ============================
-export const requireAdmin = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+export const requireAdmin: RequestHandler = (req, res, next) => {
+  const authReq = req as AuthRequest;
 
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ error: "Admin only" });
+  if (
+    !authReq.user ||
+    (authReq.user.role !== "admin" &&
+      authReq.user.role !== "superadmin")
+  ) {
+    res.status(403).json({
+      error: "Admin access required",
+    });
+    return;
   }
 
   next();
