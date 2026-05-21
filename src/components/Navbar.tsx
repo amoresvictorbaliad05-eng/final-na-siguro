@@ -104,9 +104,9 @@ export default function Navbar() {
                 {/* Notification Bell */}
                 <Link
                   to="/notifications"
-                  className="relative rounded-lg p-2 hover:bg-slate-100"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-100 transition"
                 >
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-6 w-6 text-slate-700" />
 
                   {/* Only show badge if notifications exist */}
                   {0 > 0 && (
