@@ -122,12 +122,19 @@ export default function Login() {
             </button>
 
             {/* GOOGLE LOGIN */}
-            <a
-              href={`${import.meta.env.VITE_API_URL}/api/auth/google`}
+            <button
+              type="button"
+              onClick={() => {
+                const API_URL =
+                  import.meta.env.VITE_API_URL ||
+                  "https://final1website-for-barangay.onrender.com";
+
+                window.location.href = `${API_URL}/api/auth/google`;
+              }}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-300 bg-white px-6 py-3 text-sm font-semibold text-red-600 shadow-sm transition-all hover:bg-red-50"
             >
               Continue with Google
-            </a>
+            </button>
 
           </div>
 
