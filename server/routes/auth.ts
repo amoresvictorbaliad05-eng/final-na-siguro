@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import pool from '../db/index.js';
-import { generateToken, authenticate, AuthUser } from '../middleware/auth.js';
+import { generateToken, authenticate, AuthUser, AuthRequest } from '../middleware/auth.js';
 
 import * as passportModule from "passport";
 import jwt from "jsonwebtoken";
@@ -167,7 +167,7 @@ router.post(
 // =============================================
 // GET /api/auth/me
 // =============================================
-router.get('/me', authenticate, async (req, res: Response) => {
+router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(
       'SELECT id, name, email, phone, address, barangay, role, is_verified, created_at FROM users WHERE id = $1',
@@ -228,6 +228,54 @@ router.get(
     res.redirect(
       `${process.env.FRONTEND_URL}/auth-success?token=${token}`
     );
+  }
+);
+
+router.put(
+  "/profile",
+  authenticate,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { name, phone, address } = req.body;
+
+      const result = await pool.query(
+        `
+        UPDATE users
+        SET 
+          name=$1,
+          phone=$2,
+          address=$3
+        WHERE id=$4
+        RETURNING
+          id,
+          name,
+          email,
+          phone,
+          address,
+          role,
+          created_at,
+          is_verified
+        `,
+        [
+          name,
+          phone,
+          address,
+          req.user?.id
+        ]
+      );
+
+      res.json({
+        success: true,
+        user: result.rows[0]
+      });
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error:"Failed updating profile"
+      });
+    }
   }
 );
 

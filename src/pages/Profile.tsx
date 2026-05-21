@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportContext';
 import api from '../services/api';
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { reports } = useReports();
 
   const [editing, setEditing] = useState(false);
@@ -24,6 +24,16 @@ export default function Profile() {
     phone: user?.phone || "",
     address: user?.address || ""
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        phone: user.phone,
+        address: user.address,
+      });
+    }
+  }, [user]);
 
   if (!user) return null;
 
@@ -55,12 +65,11 @@ export default function Profile() {
         );
 
         setEditing(false);
-        window.location.reload();
       } else {
-        console.error("Update failed:", result);
+        console.error('Update failed:', result.error);
       }
     } catch (error) {
-      console.error("Profile update error:", error);
+      console.error('Profile update error:', error);
     }
   };
 
