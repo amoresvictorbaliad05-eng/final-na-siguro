@@ -46,12 +46,12 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Navigation Links */}
+        {/* Navigation */}
         <div className="flex items-center gap-4">
 
           <Link
             to="/"
-            className="flex items-center gap-1 rounded-lg px-3 py-2 hover:bg-slate-100"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
           >
             <Home size={18} />
             Home
@@ -61,7 +61,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1 rounded-lg px-3 py-2 hover:bg-slate-100"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
               >
                 <BarChart3 size={18} />
                 Dashboard
@@ -69,7 +69,7 @@ export default function Navbar() {
 
               <Link
                 to="/my-reports"
-                className="flex items-center gap-1 rounded-lg px-3 py-2 hover:bg-slate-100"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
               >
                 <FileText size={18} />
                 Reports
@@ -79,14 +79,14 @@ export default function Navbar() {
                 <>
                   <Link
                     to="/analytics"
-                    className="rounded-lg px-3 py-2 hover:bg-slate-100"
+                    className="rounded-lg px-3 py-2 hover:bg-slate-100 transition"
                   >
                     Analytics
                   </Link>
 
                   <Link
                     to="/users"
-                    className="flex items-center gap-1 rounded-lg px-3 py-2 hover:bg-slate-100"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
                   >
                     <Users size={18} />
                     Users
@@ -97,39 +97,26 @@ export default function Navbar() {
               {/* Notification Bell */}
               <Link
                 to="/notifications"
-                className="relative rounded-lg p-2 hover:bg-slate-100"
+                className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-100 transition"
               >
-                <Bell className="h-5 w-5" />
-
-                {/* Notification Bell */}
-                <Link
-                  to="/notifications"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-100 transition"
-                >
-                  <Bell className="h-6 w-6 text-slate-700" />
-
-                  {/* Only show badge if notifications exist */}
-                  {0 > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                      0
-                    </span>
-                  )}
-                </Link>
+                <Bell className="h-6 w-6 text-slate-700" />
               </Link>
 
               {/* Profile */}
               <Link
                 to="/profile"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
               >
                 <User size={18} />
-                {user?.name}
+                <span className="max-w-[180px] truncate">
+                  {user?.name}
+                </span>
               </Link>
 
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
               >
                 <LogOut size={18} />
                 Logout
