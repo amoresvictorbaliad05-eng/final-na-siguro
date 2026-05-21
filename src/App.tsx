@@ -14,6 +14,7 @@ import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import AuthSuccess from './pages/AuthSuccess';
+import Notifications from './pages/Notifications';
 
 export default function App() {
   return (
@@ -101,6 +102,15 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <Notifications />
                   </ProtectedRoute>
                 }
               />
