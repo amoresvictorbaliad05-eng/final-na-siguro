@@ -123,13 +123,6 @@ export default function Profile() {
               {!editing ? (
                 <div className="flex gap-2">
 
-                  <button
-                    onClick={() => setEditing(true)}
-                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white"
-                  >
-                    <Edit size={18} />
-                    Edit Profile
-                  </button>
 
                   <Link to="/edit-profile">
 
