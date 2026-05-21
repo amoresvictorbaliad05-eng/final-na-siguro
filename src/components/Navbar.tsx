@@ -101,9 +101,20 @@ export default function Navbar() {
               >
                 <Bell className="h-5 w-5" />
 
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                  3
-                </span>
+                {/* Notification Bell */}
+                <Link
+                  to="/notifications"
+                  className="relative rounded-lg p-2 hover:bg-slate-100"
+                >
+                  <Bell className="h-5 w-5" />
+
+                  {/* Only show badge if notifications exist */}
+                  {0 > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      0
+                    </span>
+                  )}
+                </Link>
               </Link>
 
               {/* Profile */}
