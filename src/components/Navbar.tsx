@@ -37,7 +37,7 @@ export default function Navbar() {
 
           <div>
             <h1 className="font-bold text-slate-900">
-              Barangay Bantay
+              Community Incident Reporter
             </h1>
 
             <p className="text-xs text-slate-500">

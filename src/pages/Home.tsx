@@ -46,7 +46,7 @@ export default function Home() {
     {
       icon: MapPin,
       title: 'Location Mapping',
-      description: 'Pin the exact incident location. View geographic distribution of incidents across barangay zones.',
+      description: 'Pin the exact incident location. View geographic distribution of incidents across community zones.',
       color: 'from-rose-500 to-pink-600',
     },
     {
@@ -58,9 +58,9 @@ export default function Home() {
   ];
 
   const steps = [
-    { step: '01', title: 'Create Account', description: 'Sign up with your email and verify your identity as a barangay resident.' },
+    { step: '01', title: 'Create Account', description: 'Sign up with your email and verify your identity as a community resident.' },
     { step: '02', title: 'Report Incident', description: 'Fill out the incident form with details, location, severity, and evidence.' },
-    { step: '03', title: 'Officials Review', description: 'Barangay officials review and validate your report within 24-48 hours.' },
+    { step: '03', title: 'Officials Review', description: 'Local officials review and validate your report within 24-48 hours.' },
     { step: '04', title: 'Case Resolution', description: 'Track progress as officials investigate and resolve the incident.' },
   ];
 
@@ -88,7 +88,7 @@ export default function Home() {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-sm font-medium text-blue-300 backdrop-blur">
                 <Shield className="h-4 w-4" />
-                Official Barangay Safety Platform
+                Official Community Safety Platform
               </div>
 
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -264,7 +264,7 @@ export default function Home() {
             Ready to Make Your Community Safer?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">
-            Join thousands of residents who are already using Barangay Bantay to report incidents and keep their community safe.
+            Join thousands of residents who are already using Community Incident Reporter to report incidents and keep their community safe.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -279,7 +279,7 @@ export default function Home() {
               className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 px-8 py-4 text-base font-semibold text-white transition-all hover:border-white/50 hover:bg-white/10"
             >
               <Phone className="h-5 w-5" />
-              Contact Barangay
+              Contact Us
             </Link>
           </div>
         </div>
@@ -290,12 +290,12 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                 <Shield className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-bold text-slate-900">BarangayBantay</span>
+                <span className="text-lg font-bold text-slate-900">Community Incident Reporter</span>
               </div>
               <p className="mt-3 text-sm text-slate-500">
-                Official Incident Reporting System for barangay-level community safety management.
+                Official Incident Reporting System for community-level safety management.
               </p>
             </div>
             <div>
@@ -310,8 +310,8 @@ export default function Home() {
               <h4 className="font-semibold text-slate-900">Emergency</h4>
               <ul className="mt-3 space-y-2 text-sm text-slate-500">
                 <li className="flex items-center gap-2"><Phone className="h-3 w-3" /> 911 Emergency</li>
-                <li className="flex items-center gap-2"><Phone className="h-3 w-3" /> Barangay Hotline</li>
-                <li className="flex items-center gap-2"><MapPin className="h-3 w-3" /> Barangay Hall Address</li>
+                <li className="flex items-center gap-2"><Phone className="h-3 w-3" /> Community Hotline</li>
+                <li className="flex items-center gap-2"><MapPin className="h-3 w-3" /> Community Hall Address</li>
               </ul>
             </div>
             <div>
@@ -324,7 +324,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-10 border-t border-slate-200 pt-8 text-center text-sm text-slate-400">
-            © {new Date().getFullYear()} Barangay Bantay Incident Reporting System. All rights reserved.
+            © {new Date().getFullYear()} Community Incident Reporter. All rights reserved.
           </div>
         </div>
       </footer>

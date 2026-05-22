@@ -47,7 +47,7 @@ export default function Login() {
             Welcome Back
           </h2>
           <p className="mt-2 text-sm text-slate-500">
-            Sign in to access the Barangay Bantay system
+            Sign in to access the Community Incident Reporter system
           </p>
         </div>
 

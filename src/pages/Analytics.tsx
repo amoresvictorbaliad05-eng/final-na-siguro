@@ -305,10 +305,10 @@ export default function Analytics() {
           {/* Barangay Distribution */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-              <MapPin className="h-5 w-5 text-slate-400" />
-              Barangay Hotspots
-            </h3>
-            <p className="mt-1 text-sm text-slate-500">Incident distribution by barangay</p>
+                <MapPin className="h-5 w-5 text-slate-400" />
+                Community Hotspots
+              </h3>
+              <p className="mt-1 text-sm text-slate-500">Incident distribution by community zone</p>
             <div className="mt-6 h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={barangayData} layout="vertical">

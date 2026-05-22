@@ -123,7 +123,7 @@ export default function ReportIncident() {
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Report Submitted!</h2>
           <p className="text-slate-500">
-            Your incident report has been submitted successfully. Barangay officials will review your report within 24-48 hours.
+            Your incident report has been submitted successfully. Local officials will review your report within 24-48 hours.
           </p>
           <div className="rounded-xl border border-green-200 bg-green-50 p-4">
             <p className="text-sm font-medium text-green-800">Report ID: {reportId}</p>

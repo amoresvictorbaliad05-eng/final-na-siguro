@@ -95,7 +95,7 @@ export default function Register() {
             Create Your Account
           </h2>
           <p className="mt-2 text-sm text-slate-500">
-            Join Barangay Bantay to report incidents and track community safety
+            Join Community Incident Reporter to report incidents and track community safety
           </p>
         </div>
 
@@ -249,7 +249,7 @@ export default function Register() {
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-slate-500">
               By creating an account, you agree to our Terms of Service and Privacy Policy.
-              Your account will be verified by barangay officials.
+              Your account will be verified by local officials.
             </p>
           </div>
 
