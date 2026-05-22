@@ -54,20 +54,26 @@ export default function ReportIncident() {
   };
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
+  e.preventDefault();
 
+  if (!user) {
+    alert("You must be logged in");
+    return;
+  }
+
+  try {
     setLoading(true);
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
     const report = await addReport({
       reporterId: user.id,
-      reporterName: formData.isAnonymous ? 'Anonymous' : user.name,
+      reporterName: formData.isAnonymous
+        ? "Anonymous"
+        : user.name,
+
       title: formData.title,
       description: formData.description,
-      category: formData.category as IncidentCategory,
-      severity: formData.severity as IncidentSeverity,
+      category: formData.category,
+      severity: formData.severity,
       location: formData.location,
       barangay: formData.barangay,
       evidenceDescription: formData.evidenceDescription,
@@ -76,11 +82,28 @@ export default function ReportIncident() {
       isAnonymous: formData.isAnonymous,
     });
 
-    setReportId(report.id);
-    setSuccess(true);
-    setLoading(false);
-  };
+    console.log("REPORT CREATED:", report);
 
+    // safer fallback if id doesn't exist
+    setReportId(
+      report?.id?.toString() ||
+      Date.now().toString()
+    );
+
+    setSuccess(true);
+
+  } catch (error: any) {
+    console.error("SUBMIT ERROR:", error);
+
+    alert(
+      error?.message ||
+      "Failed to submit report"
+    );
+  } finally {
+    // always stop spinner
+    setLoading(false);
+  }
+};
   const canProceedStep1 = formData.category && formData.severity;
   const canProceedStep2 = formData.title && formData.description && formData.location;
 

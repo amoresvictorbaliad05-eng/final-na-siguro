@@ -32,10 +32,11 @@ export const generateToken = (user: AuthUser): string => {
  * Authenticate user
  */
 export const authenticate = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
+  const authReq = req as AuthRequest;
   try {
     const authHeader = req.headers.authorization;
 
@@ -50,12 +51,21 @@ export const authenticate = (
       ? authHeader.split(" ")[1]
       : authHeader;
 
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET is not configured");
+      res.status(500).json({
+        error: "Server configuration error"
+      });
+      return;
+    }
+
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      secret
     ) as AuthUser;
 
-    req.user = decoded;
+    (req as any).user = decoded;
 
     next();
 
@@ -72,15 +82,16 @@ export const authenticate = (
  * Admin middleware
  */
 export const requireAdmin = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
+  const authReq = req as AuthRequest;
   if (
-    !req.user ||
+    !authReq.user ||
     (
-      req.user.role !== "admin" &&
-      req.user.role !== "superadmin"
+      authReq.user.role !== "admin" &&
+      authReq.user.role !== "superadmin"
     )
   ) {
     res.status(403).json({

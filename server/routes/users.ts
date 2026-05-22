@@ -1,45 +1,40 @@
-import { Router, Response } from "express";
-import pool from "../db/index";
-import {
-  authenticate,
-  requireAdmin,
-} from "../middleware/auth";
+import { Router, Response, Request } from "express";
+import pool from "../db/index.js";
+import { authenticate, requireAdmin } from "../middleware/auth.js";
+import type { AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
-// =============================================
-// GET ALL USERS (ADMIN ONLY)
-// =============================================
-
+/**
+ * GET all users (admin only)
+ */
 router.get(
   "/",
   authenticate,
   requireAdmin,
-  async (req, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authReq = req as AuthRequest;
       const { role, search } = req.query;
 
       let whereConditions: string[] = [];
       let params: any[] = [];
-      let paramIndex = 1;
+      let i = 1;
 
       if (role && role !== "all") {
-        whereConditions.push(`role = $${paramIndex}`);
+        whereConditions.push(`role = $${i}`);
         params.push(role);
-        paramIndex++;
+        i++;
       }
 
       if (search) {
-        whereConditions.push(`
-          (
-            name ILIKE $${paramIndex}
-            OR email ILIKE $${paramIndex}
-            OR phone ILIKE $${paramIndex}
-          )
-        `);
-
+        whereConditions.push(`(
+          name ILIKE $${i} OR 
+          email ILIKE $${i} OR 
+          phone ILIKE $${i}
+        )`);
         params.push(`%${search}%`);
-        paramIndex++;
+        i++;
       }
 
       const whereClause =
@@ -49,16 +44,7 @@ router.get(
 
       const result = await pool.query(
         `
-        SELECT
-        id,
-        name,
-        email,
-        phone,
-        address,
-        barangay,
-        role,
-        is_verified,
-        created_at
+        SELECT id, name, email, phone, address, barangay, role, is_verified, created_at
         FROM users
         ${whereClause}
         ORDER BY created_at DESC
@@ -67,71 +53,45 @@ router.get(
       );
 
       res.json({
-        users: result.rows.map((user) => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          address: user.address,
-          barangay: user.barangay,
-          role: user.role,
-          isVerified: user.is_verified,
-          createdAt: user.created_at,
-        })),
+        users: result.rows,
       });
-
-    } catch (error) {
-      console.error("Get users error:", error);
-
-      res.status(500).json({
-        error: "Internal server error",
-      });
+    } catch (err) {
+      console.error("GET USERS ERROR:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 );
 
-
-// =============================================
-// VERIFY USER
-// =============================================
-
+/**
+ * PATCH verify user (admin only)
+ */
 router.patch(
   "/:id/verify",
   authenticate,
   requireAdmin,
-  async (req, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { isVerified } = req.body;
 
       const result = await pool.query(
-        `
-        UPDATE users
-        SET is_verified=$1
-        WHERE id=$2
-        RETURNING id,name,email,is_verified
-        `,
+        `UPDATE users
+         SET is_verified = $1
+         WHERE id = $2
+         RETURNING id, name, email, is_verified`,
         [isVerified, req.params.id]
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({
-          error: "User not found",
-        });
+        return res.status(404).json({ error: "User not found" });
       }
 
       res.json({
-        message: `User ${
-          isVerified ? "verified" : "unverified"
-        } successfully`,
+        message: "User updated",
         user: result.rows[0],
       });
-
-    } catch (error) {
-      console.error("Verify user error:", error);
-
-      res.status(500).json({
-        error: "Internal server error",
-      });
+    } catch (err) {
+      console.error("VERIFY ERROR:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 );
