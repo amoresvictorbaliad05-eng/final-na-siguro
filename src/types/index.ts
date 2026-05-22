@@ -22,6 +22,7 @@ export interface User {
   email: string;
   phone: string;
   address: string;
+  barangay: string;
   role: UserRole;
   avatar?: string;
   createdAt: string;
@@ -126,7 +127,18 @@ export const CATEGORY_COLORS: Record<IncidentCategory, string> = {
   missing_person: '#0ea5e9',
   other: '#64748b',
 };
+export const BARANGAYS = [
+  'Brgy. San Antonio',
+  'Brgy. San Jose',
+  'Brgy. San Isidro',
+  'Brgy. Santo Niño',
+  'Brgy. San Pedro',
+  'Brgy. Del Pilar',
+  'Brgy. Rizal',
+  'Brgy. Mabini',
+] as const;
 
+export type Barangay = (typeof BARANGAYS)[number];
 export const STATUS_COLORS: Record<IncidentStatus, string> = {
   pending: '#f59e0b',
   under_review: '#3b82f6',

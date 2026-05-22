@@ -7,7 +7,7 @@ import {
   ReactNode
 } from 'react';
 
-import { User } from '../types';
+import { User, BARANGAYS } from '../types';
 import api from '../services/api';
 
 interface AuthState {
@@ -40,6 +40,7 @@ interface RegisterData {
   password: string;
   phone: string;
   address: string;
+  barangay: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: data.user.email,
           phone: data.user.phone,
           address: data.user.address,
+          barangay: data.user.barangay || BARANGAYS[0],
           role: data.user.role,
           createdAt: data.user.createdAt,
           isVerified: data.user.isVerified
@@ -113,11 +115,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await api.login(email, password);
 
       const user: User = {
-        id: String(data.user.id),
+        id: data.user.id,
         name: data.user.name,
         email: data.user.email,
         phone: data.user.phone,
         address: data.user.address,
+        barangay: data.user.barangay || BARANGAYS[0],
         role: data.user.role,
         createdAt: data.user.createdAt,
         isVerified: data.user.isVerified
@@ -149,11 +152,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await api.register(data);
 
       const user: User = {
-        id: String(result.user.id),
+        id: result.user.id,
         name: result.user.name,
         email: result.user.email,
         phone: result.user.phone,
         address: result.user.address,
+        barangay: result.user.barangay || BARANGAYS[0],
         role: result.user.role,
         createdAt: result.user.createdAt,
         isVerified: result.user.isVerified
@@ -213,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: result.user.email,
           phone: result.user.phone,
           address: result.user.address,
+          barangay: result.user.barangay || BARANGAYS[0],
           role: result.user.role,
           createdAt: result.user.createdAt,
           isVerified: result.user.isVerified,

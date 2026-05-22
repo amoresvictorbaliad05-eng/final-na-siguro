@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { BARANGAYS } from '../types';
 import { Shield, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Register() {
@@ -14,12 +15,13 @@ export default function Register() {
     confirmPassword: '',
     phone: '',
     address: '',
+    barangay: BARANGAYS[0],
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setError('');
   };
@@ -52,6 +54,7 @@ export default function Register() {
         password: formData.password,
         phone: formData.phone,
         address: formData.address,
+        barangay: formData.barangay,
       });
 
       if (result.success) {
@@ -150,7 +153,7 @@ export default function Register() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="mt-1.5 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="09171234567"
+                placeholder="09123456789"
               />
             </div>
 
@@ -168,6 +171,23 @@ export default function Register() {
                 className="mt-1.5 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="123 Rizal St., Zone 2"
               />
+            </div>
+
+            <div>
+              <label htmlFor="barangay" className="block text-sm font-medium text-slate-700">
+                Barangay
+              </label>
+              <select
+                id="barangay"
+                name="barangay"
+                value={formData.barangay}
+                onChange={handleChange}
+                className="mt-1.5 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                {BARANGAYS.map(barangay => (
+                  <option key={barangay} value={barangay}>{barangay}</option>
+                ))}
+              </select>
             </div>
 
             <div>

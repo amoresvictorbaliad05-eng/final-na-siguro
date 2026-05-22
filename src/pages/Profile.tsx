@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export default function Profile() {
-  const { user, updateProfile } = useAuth();
+  const { user } = useAuth();
   const { reports } = useReports();
 
   const [editing, setEditing] = useState(false);
@@ -222,6 +222,14 @@ export default function Profile() {
                     ) : (
                       <p>{user.address}</p>
                     )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <MapPin />
+                  <div>
+                    <p className="text-xs text-gray-500">Barangay</p>
+                    <p>{user.barangay}</p>
                   </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportContext';
@@ -7,6 +7,7 @@ import {
   IncidentSeverity,
   CATEGORY_LABELS,
   SEVERITY_LABELS,
+  BARANGAYS,
 } from '../types';
 import {
   AlertTriangle,
@@ -38,12 +39,18 @@ export default function ReportIncident() {
     category: '' as IncidentCategory | '',
     severity: '' as IncidentSeverity | '',
     location: '',
-    barangay: 'Brgy. San Antonio',
+    barangay: BARANGAYS[0] as string,
     evidenceDescription: '',
     witnessName: '',
     witnessContact: '',
     isAnonymous: false,
   });
+
+  useEffect(() => {
+    if (user?.barangay) {
+      setFormData(prev => ({ ...prev, barangay: user.barangay }));
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -341,23 +348,23 @@ export default function ReportIncident() {
 
                 <div>
                   <label htmlFor="barangay" className="block text-sm font-medium text-slate-700">
-                    Barangay
+                    Incident Barangay
                   </label>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Select the barangay where the incident occurred.
+                  </p>
                   <select
                     id="barangay"
                     name="barangay"
                     value={formData.barangay}
                     onChange={handleChange}
-                    className="mt-1.5 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   >
-                    <option>Brgy. San Antonio</option>
-                    <option>Brgy. San Jose</option>
-                    <option>Brgy. San Isidro</option>
-                    <option>Brgy. Santo Niño</option>
-                    <option>Brgy. San Pedro</option>
-                    <option>Brgy. Del Pilar</option>
-                    <option>Brgy. Rizal</option>
-                    <option>Brgy. Mabini</option>
+                    {BARANGAYS.map(barangay => (
+                      <option key={barangay} value={barangay}>
+                        {barangay}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -473,6 +480,10 @@ export default function ReportIncident() {
                   <div className="flex justify-between">
                     <dt className="text-slate-500">Location:</dt>
                     <dd className="font-medium text-slate-900">{formData.location || '-'}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Barangay:</dt>
+                    <dd className="font-medium text-slate-900">{formData.barangay || '-'}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-slate-500">Anonymous:</dt>
