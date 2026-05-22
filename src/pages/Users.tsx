@@ -200,30 +200,7 @@ export default function Users() {
                         </div>
                       </div>
 
-                      {/* Pagination controls */}
-                      <div className="mt-4 flex items-center justify-between px-4 py-3 bg-white">
-                        <div className="text-sm text-slate-600">
-                          Showing {filteredUsers.length === 0 ? 0 : (Math.min((page - 1) * PER_PAGE + 1, filteredUsers.length))} - {Math.min(page * PER_PAGE, filteredUsers.length)} of {filteredUsers.length}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
-                          >
-                            Prev
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPage(p => p + 1)}
-                            disabled={page * PER_PAGE >= filteredUsers.length}
-                            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
+                      
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
@@ -283,6 +260,33 @@ export default function Users() {
             </table>
           </div>
         </div>
+
+        {/* Pagination (bottom) */}
+        {filteredUsers.length > 0 && (
+          <div className="mt-4 flex items-center justify-between rounded-b-2xl border border-t-0 border-slate-200 bg-white px-4 py-3">
+            <div className="text-sm text-slate-600">
+              Showing {filteredUsers.length === 0 ? 0 : Math.min((page - 1) * PER_PAGE + 1, filteredUsers.length)} - {Math.min(page * PER_PAGE, filteredUsers.length)} of {filteredUsers.length}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage(p => p + 1)}
+                disabled={page * PER_PAGE >= filteredUsers.length}
+                className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
 
         {filteredUsers.length === 0 && (
           <div className="mt-8 text-center">
