@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import pool from '../db/index.js';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
@@ -18,10 +18,10 @@ function generateReportNumber(): string {
 // =============================================
 // GET /api/reports
 // =============================================
-router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const { status, category, severity, search, page = '1', limit = '50' } = req.query;
-    const isAdmin = req.user!.role === 'admin' || req.user!.role === 'superadmin';
+    const isAdmin = (req as AuthRequest).user!.role === 'admin' || (req as AuthRequest).user!.role === 'superadmin';
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
     let whereConditions: string[] = [];
@@ -31,7 +31,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     // Non-admin users can only see their own reports
     if (!isAdmin) {
       whereConditions.push(`reporter_id = $${paramIndex}`);
-      params.push(req.user!.id);
+      params.push((req as AuthRequest).user!.id);
       paramIndex++;
     }
 
@@ -100,7 +100,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /api/reports/:id
 // =============================================
-router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const result = await pool.query('SELECT * FROM reports WHERE id = $1', [req.params.id]);
 
@@ -109,10 +109,10 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     }
 
     const report = result.rows[0];
-    const isAdmin = req.user!.role === 'admin' || req.user!.role === 'superadmin';
+    const isAdmin = (req as AuthRequest).user!.role === 'admin' || (req as AuthRequest).user!.role === 'superadmin';
 
     // Non-admin users can only view their own reports
-    if (!isAdmin && report.reporter_id !== req.user!.id) {
+    if (!isAdmin && report.reporter_id !== (req as AuthRequest).user!.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -137,7 +137,7 @@ router.post(
     body('location').trim().notEmpty().withMessage('Location is required'),
     body('barangay').trim().notEmpty().withMessage('Barangay is required'),
   ],
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -159,8 +159,8 @@ router.post(
          RETURNING *`,
         [
           reportNumber,
-          req.user!.id,
-          isAnonymous ? 'Anonymous' : req.user!.name,
+          (req as AuthRequest).user!.id,
+          isAnonymous ? 'Anonymous' : (req as AuthRequest).user!.name,
           title,
           description,
           category,
@@ -178,7 +178,7 @@ router.post(
       await pool.query(
         `INSERT INTO activity_logs (action, user_id, user_name, report_id, details)
          VALUES ('report_submitted', $1, $2, $3, 'Submitted new incident report')`,
-        [req.user!.id, req.user!.name, result.rows[0].id]
+        [(req as AuthRequest).user!.id, (req as AuthRequest).user!.name, result.rows[0].id]
       );
 
       res.status(201).json({
@@ -202,7 +202,7 @@ router.patch(
   [
     body('status').isIn(['pending', 'under_review', 'approved', 'rejected', 'resolved']),
   ],
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -244,7 +244,7 @@ router.patch(
          RETURNING *`,
         [
           status,
-          req.user!.id,
+          (req as AuthRequest).user!.id,
           reviewNotes || null,
           status === 'resolved' ? reviewNotes : null,
           reportId,
@@ -264,8 +264,8 @@ router.patch(
          VALUES ($1, $2, $3, $4, $5)`,
         [
           actionMap[status] || 'status_updated',
-          req.user!.id,
-          req.user!.name,
+          (req as AuthRequest).user!.id,
+          (req as AuthRequest).user!.name,
           reportId,
           `Report status changed to ${status}${reviewNotes ? `: ${reviewNotes}` : ''}`,
         ]
@@ -295,10 +295,14 @@ router.patch(
         message: 'Report status updated',
         report: formatReport(result.rows[0]),
       });
-    } catch (error) {
-      console.error('Update report status error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    } catch (error: any) {
+  console.error("CREATE REPORT ERROR:");
+  console.error(error);
+
+  res.status(500).json({
+    error: error.message
+  });
+}
   }
 );
 

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import pool from '../db/index.js';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 
@@ -7,7 +7,7 @@ const router = Router();
 // =============================================
 // GET /api/logs
 // =============================================
-router.get('/', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticate, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { limit = '50' } = req.query;
 

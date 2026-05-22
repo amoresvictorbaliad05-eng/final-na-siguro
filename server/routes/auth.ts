@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import pool from '../db/index.js';
@@ -167,11 +167,12 @@ router.post(
 // =============================================
 // GET /api/auth/me
 // =============================================
-router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/me', authenticate, async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthRequest;
     const result = await pool.query(
       'SELECT id, name, email, phone, address, barangay, role, is_verified, created_at FROM users WHERE id = $1',
-      [req.user!.id]
+      [authReq.user!.id]
     );
 
     if (result.rows.length === 0) {
@@ -234,8 +235,9 @@ router.get(
 router.put(
   "/profile",
   authenticate,
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authReq = req as AuthRequest;
       const { name, phone, address } = req.body;
 
       const result = await pool.query(
@@ -260,7 +262,7 @@ router.put(
           name,
           phone,
           address,
-          req.user?.id
+          authReq.user!.id
         ]
       );
 
