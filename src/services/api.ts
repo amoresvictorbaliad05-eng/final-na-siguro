@@ -10,6 +10,9 @@ interface RequestOptions {
   body?: any;
 }
 
+/**
+ * Generic request helper
+ */
 async function request(
   endpoint: string,
   options: RequestOptions = {}
@@ -45,7 +48,9 @@ async function request(
 
   if (!response.ok) {
     throw new Error(
-      data.error || "Request failed"
+      data.error ||
+      data.message ||
+      "Request failed"
     );
   }
 
@@ -56,19 +61,27 @@ const api = {
   /**
    * AUTH
    */
+
   login: (
     email: string,
     password: string
   ) =>
     request("/auth/login", {
       method: "POST",
+
       body: {
         email,
         password,
       },
     }),
 
-  register: (data: any) =>
+  register: (data: {
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+    address: string;
+  }) =>
     request("/auth/register", {
       method: "POST",
       body: data,
@@ -89,8 +102,8 @@ const api = {
 
   /**
    * PROFILE UPDATE
-   * Updates logged-in user's profile
    */
+
   updateProfile: (data: {
     name: string;
     phone: string;
@@ -104,6 +117,7 @@ const api = {
   /**
    * REPORTS
    */
+
   getReports: () =>
     request("/reports"),
 
@@ -113,27 +127,65 @@ const api = {
       body: data,
     }),
 
+  getReportById: (id: string) =>
+    request(`/reports/${id}`),
+
+  updateReport: (
+    id: string,
+    data: any
+  ) =>
+    request(`/reports/${id}/status`, {
+      method: "PATCH",
+      body: data,
+    }),
+
+  deleteReport: (id: string) =>
+    request(`/reports/${id}`, {
+      method: "DELETE",
+    }),
+
   /**
    * USERS
    */
+
   getUsers: () =>
     request("/users"),
+
+  getUserById: (id: string) =>
+    request(`/users/${id}`),
+
+  updateUser: (
+    id: string,
+    data: any
+  ) =>
+    request(`/users/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
+
+  deleteUser: (id: string) =>
+    request(`/users/${id}`, {
+      method: "DELETE",
+    }),
 
   /**
    * ANALYTICS
    */
+
   getAnalytics: () =>
     request("/analytics"),
 
   /**
    * LOGS
    */
+
   getLogs: () =>
     request("/logs"),
 
   /**
    * NOTIFICATIONS
    */
+
   getNotifications: () =>
     request("/notifications"),
 };
