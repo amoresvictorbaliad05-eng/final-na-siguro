@@ -185,10 +185,15 @@ router.post(
         message: 'Report submitted successfully',
         report: formatReport(result.rows[0]),
       });
-    } catch (error) {
-      console.error('Create report error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    } catch (error: any) {
+  console.log("========== REPORT ERROR ==========");
+  console.log(error);
+  console.log("MESSAGE:", error?.message);
+
+  res.status(500).json({
+    error: error?.message || "Internal server error"
+  });
+}
   }
 );
 
