@@ -174,20 +174,12 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="barangay" className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700">
                 Barangay
               </label>
-              <select
-                id="barangay"
-                name="barangay"
-                value={formData.barangay}
-                onChange={handleChange}
-                className="mt-1.5 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                {BARANGAYS.map(barangay => (
-                  <option key={barangay} value={barangay}>{barangay}</option>
-                ))}
-              </select>
+              <p className="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                {formData.barangay}
+              </p>
             </div>
 
             <div>

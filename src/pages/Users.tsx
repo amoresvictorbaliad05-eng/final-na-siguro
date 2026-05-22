@@ -70,6 +70,12 @@ export default function Users() {
     return reports.filter(r => r.reporterId === userId && r.status === 'pending').length;
   };
 
+  const stats = {
+    total: filteredUsers.length,
+    officials: filteredUsers.filter(u => u.role === 'admin' || u.role === 'superadmin').length,
+    verified: filteredUsers.filter(u => u.isVerified).length,
+  };
+
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -90,7 +96,7 @@ export default function Users() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Total Users</p>
-                <p className="text-2xl font-bold text-slate-900">{users.length}</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
               </div>
             </div>
           </div>
@@ -102,7 +108,7 @@ export default function Users() {
               <div>
                 <p className="text-sm text-slate-500">Officials</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {users.filter(u => u.role === 'admin' || u.role === 'superadmin').length}
+                  {stats.officials}
                 </p>
               </div>
             </div>
@@ -115,7 +121,7 @@ export default function Users() {
               <div>
                 <p className="text-sm text-slate-500">Verified</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {users.filter(u => u.isVerified).length}
+                  {stats.verified}
                 </p>
               </div>
             </div>
