@@ -1,16 +1,39 @@
-import { useMemo } from 'react';
-import { mockUsers } from '../data/mockData';
+import { useMemo, useEffect, useState } from 'react';
 import { useReports } from '../context/ReportContext';
+import api from '../services/api';
 import { Users as UsersIcon, Shield, User, CheckCircle2, XCircle, FileText, Search } from 'lucide-react';
-import { useState } from 'react';
+import { User as UserType } from '../types';
 
 export default function Users() {
   const { reports } = useReports();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'citizen' | 'admin' | 'superadmin'>('all');
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch users from backend
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getUsers();
+      setUsers(data.users || data);
+    } catch (err) {
+      console.error('Failed to fetch users', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+
+    // poll for new users every 10s
+    const id = setInterval(fetchUsers, 10000);
+    return () => clearInterval(id);
+  }, []);
 
   const filteredUsers = useMemo(() => {
-    return mockUsers.filter(u => {
+    return users.filter(u => {
       if (roleFilter !== 'all' && u.role !== roleFilter) return false;
       if (search) {
         const s = search.toLowerCase();
@@ -22,7 +45,7 @@ export default function Users() {
       }
       return true;
     });
-  }, [search, roleFilter]);
+  }, [search, roleFilter, users]);
 
   const getUserReportCount = (userId: string) => {
     return reports.filter(r => r.reporterId === userId).length;
@@ -52,7 +75,7 @@ export default function Users() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Total Users</p>
-                <p className="text-2xl font-bold text-slate-900">{mockUsers.length}</p>
+                <p className="text-2xl font-bold text-slate-900">{users.length}</p>
               </div>
             </div>
           </div>
@@ -64,7 +87,7 @@ export default function Users() {
               <div>
                 <p className="text-sm text-slate-500">Officials</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {mockUsers.filter(u => u.role === 'admin' || u.role === 'superadmin').length}
+                  {users.filter(u => u.role === 'admin' || u.role === 'superadmin').length}
                 </p>
               </div>
             </div>
@@ -77,7 +100,7 @@ export default function Users() {
               <div>
                 <p className="text-sm text-slate-500">Verified</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {mockUsers.filter(u => u.isVerified).length}
+                  {users.filter(u => u.isVerified).length}
                 </p>
               </div>
             </div>
