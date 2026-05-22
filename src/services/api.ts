@@ -163,6 +163,12 @@ const api = {
       body: data,
     }),
 
+  verifyUser: (id: string, isVerified: boolean) =>
+    request(`/users/${id}/verify`, {
+      method: "PATCH",
+      body: { isVerified },
+    }),
+
   deleteUser: (id: string) =>
     request(`/users/${id}`, {
       method: "DELETE",

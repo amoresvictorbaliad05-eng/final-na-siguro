@@ -1,15 +1,18 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useReports } from '../context/ReportContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { Users as UsersIcon, Shield, User, CheckCircle2, XCircle, FileText, Search } from 'lucide-react';
 import { User as UserType } from '../types';
 
 export default function Users() {
   const { reports } = useReports();
+  const { user, isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'citizen' | 'admin' | 'superadmin'>('all');
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [verifyingIds, setVerifyingIds] = useState<string[]>([]);
 
   // Fetch users from backend
   const fetchUsers = async () => {
@@ -31,6 +34,18 @@ export default function Users() {
     const id = setInterval(fetchUsers, 10000);
     return () => clearInterval(id);
   }, []);
+
+  const handleVerifyUser = async (userId: string) => {
+    try {
+      setVerifyingIds(prev => [...prev, userId]);
+      await api.verifyUser(userId, true);
+      await fetchUsers();
+    } catch (err) {
+      console.error('Failed to verify user', err);
+    } finally {
+      setVerifyingIds(prev => prev.filter(id => id !== userId));
+    }
+  };
 
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
@@ -186,15 +201,27 @@ export default function Users() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${
-                        u.isVerified ? 'text-green-600' : 'text-amber-600'
-                      }`}>
-                        {u.isVerified ? (
-                          <><CheckCircle2 className="h-3.5 w-3.5" /> Verified</>
-                        ) : (
-                          <><XCircle className="h-3.5 w-3.5" /> Pending</>
+                      <div className="flex flex-col gap-2">
+                        <span className={`inline-flex items-center gap-1 text-xs font-medium ${
+                          u.isVerified ? 'text-green-600' : 'text-amber-600'
+                        }`}>
+                          {u.isVerified ? (
+                            <><CheckCircle2 className="h-3.5 w-3.5" /> Verified</>
+                          ) : (
+                            <><XCircle className="h-3.5 w-3.5" /> Pending</>
+                          )}
+                        </span>
+                        {!u.isVerified && user?.role === 'superadmin' && (
+                          <button
+                            type="button"
+                            onClick={() => handleVerifyUser(u.id)}
+                            disabled={verifyingIds.includes(u.id)}
+                            className="inline-flex items-center justify-center rounded-full border border-green-500 bg-green-50 px-3 py-1 text-[11px] font-semibold text-green-700 transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {verifyingIds.includes(u.id) ? 'Verifying…' : 'Verify'}
+                          </button>
                         )}
-                      </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
