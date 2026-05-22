@@ -13,6 +13,8 @@ export default function Users() {
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [verifyingIds, setVerifyingIds] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 10;
 
   // Fetch users from backend
   const fetchUsers = async () => {
@@ -61,6 +63,12 @@ export default function Users() {
       return true;
     });
   }, [search, roleFilter, users]);
+
+  // keep page in-range when filters or users change
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PER_PAGE));
+    if (page > totalPages) setPage(totalPages);
+  }, [filteredUsers.length]);
 
   const getUserReportCount = (userId: string) => {
     return reports.filter(r => r.reporterId === userId).length;
@@ -179,7 +187,7 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredUsers.map(u => (
+                {filteredUsers.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(u => (
                   <tr key={u.id} className="transition-colors hover:bg-slate-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -189,6 +197,31 @@ export default function Users() {
                         <div>
                           <p className="text-sm font-medium text-slate-900">{u.name}</p>
                           <p className="text-xs text-slate-500">{u.email}</p>
+                        </div>
+                      </div>
+
+                      {/* Pagination controls */}
+                      <div className="mt-4 flex items-center justify-between px-4 py-3 bg-white">
+                        <div className="text-sm text-slate-600">
+                          Showing {filteredUsers.length === 0 ? 0 : (Math.min((page - 1) * PER_PAGE + 1, filteredUsers.length))} - {Math.min(page * PER_PAGE, filteredUsers.length)} of {filteredUsers.length}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+                          >
+                            Prev
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPage(p => p + 1)}
+                            disabled={page * PER_PAGE >= filteredUsers.length}
+                            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+                          >
+                            Next
+                          </button>
                         </div>
                       </div>
                     </td>
