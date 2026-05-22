@@ -151,6 +151,11 @@ router.post(
 
       const reportNumber = generateReportNumber();
 
+      const authReq = req as AuthRequest;
+      const reporterName = isAnonymous
+        ? 'Anonymous'
+        : authReq.user?.name || 'Unknown Reporter';
+
       const result = await pool.query(
         `INSERT INTO reports (report_number, reporter_id, reporter_name, title, description, 
          category, severity, status, location, barangay, evidence_description, 
@@ -159,8 +164,8 @@ router.post(
          RETURNING *`,
         [
           reportNumber,
-          (req as AuthRequest).user!.id,
-          isAnonymous ? 'Anonymous' : (req as AuthRequest).user!.name,
+          authReq.user!.id,
+          reporterName,
           title,
           description,
           category,

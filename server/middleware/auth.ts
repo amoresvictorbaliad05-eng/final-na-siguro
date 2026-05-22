@@ -19,7 +19,9 @@ export const generateToken = (user: AuthUser): string => {
   return jwt.sign(
     {
       id: user.id,
-      role: user.role
+      role: user.role,
+      email: user.email,
+      name: user.name
     },
     process.env.JWT_SECRET as string,
     {
