@@ -4,6 +4,14 @@ const API_BASE_URL =
 
 const BASE = `${API_BASE_URL}/api`;
 
+function normalizeUser(user: any) {
+  return {
+    ...user,
+    isVerified: user.isVerified ?? user.is_verified,
+    createdAt: user.createdAt ?? user.created_at,
+  };
+}
+
 interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
@@ -148,11 +156,21 @@ const api = {
    * USERS
    */
 
-  getUsers: () =>
-    request("/users"),
+  getUsers: async () => {
+    const data = await request("/users");
+    return {
+      ...data,
+      users: (data.users || []).map((user: any) => normalizeUser(user)),
+    };
+  },
 
-  getUserById: (id: string) =>
-    request(`/users/${id}`),
+  getUserById: async (id: string) => {
+    const data = await request(`/users/${id}`);
+    return {
+      ...data,
+      user: normalizeUser(data.user),
+    };
+  },
 
   updateUser: (
     id: string,
