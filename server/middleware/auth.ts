@@ -105,3 +105,22 @@ export const requireAdmin = (
 
   next();
 };
+
+/**
+ * Superadmin middleware
+ */
+export const requireSuperAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const authReq = req as AuthRequest;
+  if (!authReq.user || authReq.user.role !== "superadmin") {
+    res.status(403).json({
+      error: "Superadmin access required"
+    });
+    return;
+  }
+
+  next();
+};

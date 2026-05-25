@@ -1,7 +1,7 @@
 import { Router, Response, Request } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import pool from '../db/index.js';
-import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
+import { authenticate, requireAdmin, requireSuperAdmin, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -24,7 +24,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const isAdmin = (req as AuthRequest).user!.role === 'admin' || (req as AuthRequest).user!.role === 'superadmin';
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-    let whereConditions: string[] = [];
+    let whereConditions: string[] = ['is_deleted = false'];
     let params: any[] = [];
     let paramIndex = 1;
 
@@ -109,11 +109,17 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     }
 
     const report = result.rows[0];
-    const isAdmin = (req as AuthRequest).user!.role === 'admin' || (req as AuthRequest).user!.role === 'superadmin';
+    const authReq = req as AuthRequest;
+    const isAdmin = authReq.user!.role === 'admin' || authReq.user!.role === 'superadmin';
 
     // Non-admin users can only view their own reports
-    if (!isAdmin && report.reporter_id !== (req as AuthRequest).user!.id) {
+    if (!isAdmin && report.reporter_id !== authReq.user!.id) {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Only superadmins can view deleted reports
+    if (report.is_deleted && authReq.user!.role !== 'superadmin') {
+      return res.status(404).json({ error: 'Report not found' });
     }
 
     res.json({ report: formatReport(report) });
@@ -316,6 +322,144 @@ router.patch(
   }
 );
 
+// =============================================
+// GET /api/reports/deleted
+// =============================================
+router.get('/deleted', authenticate, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM reports WHERE is_deleted = true ORDER BY deleted_at DESC'
+    );
+
+    res.json({
+      reports: result.rows.map(formatReport),
+    });
+  } catch (error) {
+    console.error('Get deleted reports error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// =============================================
+// DELETE /api/reports/:id
+// =============================================
+router.delete('/:id', authenticate, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const reportId = req.params.id;
+    const authReq = req as AuthRequest;
+
+    const currentReport = await pool.query('SELECT * FROM reports WHERE id = $1', [reportId]);
+    if (currentReport.rows.length === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const report = currentReport.rows[0];
+    if (report.is_deleted) {
+      return res.status(400).json({ error: 'Report already deleted' });
+    }
+
+    await pool.query(
+      `UPDATE reports
+       SET is_deleted = true,
+           deleted_at = CURRENT_TIMESTAMP,
+           deleted_by = $1
+       WHERE id = $2`,
+      [authReq.user!.id, reportId]
+    );
+
+    await pool.query(
+      `INSERT INTO activity_logs (action, user_id, user_name, report_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'report_deleted',
+        authReq.user!.id,
+        authReq.user!.name,
+        reportId,
+        `Report deleted by superadmin ${authReq.user!.name}`,
+      ]
+    );
+
+    await pool.query(
+      `INSERT INTO notifications (user_id, title, message, type, related_report_id)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        report.reporter_id,
+        'Report Deleted',
+        'Your incident report was deleted by the superadmin.',
+        'warning',
+        reportId,
+      ]
+    );
+
+    res.json({ message: 'Report deleted successfully' });
+  } catch (error) {
+    console.error('Delete report error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// =============================================
+// PATCH /api/reports/:id/recover
+// =============================================
+router.patch('/:id/recover', authenticate, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const reportId = req.params.id;
+    const authReq = req as AuthRequest;
+
+    const currentReport = await pool.query('SELECT * FROM reports WHERE id = $1', [reportId]);
+    if (currentReport.rows.length === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const report = currentReport.rows[0];
+    if (!report.is_deleted) {
+      return res.status(400).json({ error: 'Report is not deleted' });
+    }
+
+    const result = await pool.query(
+      `UPDATE reports
+       SET is_deleted = false,
+           deleted_at = NULL,
+           deleted_by = NULL
+       WHERE id = $1
+       RETURNING *`,
+      [reportId]
+    );
+
+    await pool.query(
+      `INSERT INTO activity_logs (action, user_id, user_name, report_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'report_recovered',
+        authReq.user!.id,
+        authReq.user!.name,
+        reportId,
+        `Report recovered by superadmin ${authReq.user!.name}`,
+      ]
+    );
+
+    await pool.query(
+      `INSERT INTO notifications (user_id, title, message, type, related_report_id)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        report.reporter_id,
+        'Report Restored',
+        'Your incident report was restored by the superadmin.',
+        'success',
+        reportId,
+      ]
+    );
+
+    res.json({
+      message: 'Report restored successfully',
+      report: formatReport(result.rows[0]),
+    });
+  } catch (error) {
+    console.error('Recover report error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Helper function to format report
 function formatReport(report: any) {
   return {
@@ -340,6 +484,9 @@ function formatReport(report: any) {
     reviewedAt: report.reviewed_at,
     reviewNotes: report.review_notes,
     resolutionNotes: report.resolution_notes,
+    isDeleted: report.is_deleted || false,
+    deletedBy: report.deleted_by,
+    deletedAt: report.deleted_at,
     createdAt: report.created_at,
     updatedAt: report.updated_at,
   };

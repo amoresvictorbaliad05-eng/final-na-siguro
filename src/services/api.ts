@@ -152,6 +152,14 @@ const api = {
       method: "DELETE",
     }),
 
+  getDeletedReports: () =>
+    request(`/reports/deleted`),
+
+  recoverReport: (id: string) =>
+    request(`/reports/${id}/recover`, {
+      method: "PATCH",
+    }),
+
   /**
    * USERS
    */

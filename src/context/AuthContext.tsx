@@ -17,21 +17,23 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-login:(email:string,password:string)=>Promise<any>;
+  login:(email:string,password:string)=>Promise<any>;
 
-register:(data:RegisterData)=>Promise<any>;
+  register:(data:RegisterData)=>Promise<any>;
 
-logout:()=>void;
+  logout:()=>void;
 
-isAdmin:()=>boolean;
+  isAdmin:()=>boolean;
 
-updateProfile:(
-data:{
-name:string;
-phone:string;
-address:string;
-}
-)=>Promise<any>;
+  isSuperAdmin:()=>boolean;
+
+  updateProfile:(
+    data:{
+      name:string;
+      phone:string;
+      address:string;
+    }
+  )=>Promise<any>;
 }
 
 interface RegisterData {
@@ -253,6 +255,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }, [state.user]);
 
+  const isSuperAdmin = useCallback(() => {
+    return state.user?.role === 'superadmin';
+  }, [state.user]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -261,7 +267,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateProfile,
-        isAdmin
+        isAdmin,
+        isSuperAdmin
       }}
     >
       {children}

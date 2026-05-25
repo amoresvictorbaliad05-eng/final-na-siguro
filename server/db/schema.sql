@@ -53,6 +53,9 @@ CREATE TABLE IF NOT EXISTS reports (
     reviewed_at TIMESTAMP WITH TIME ZONE,
     review_notes TEXT,
     resolution_notes TEXT,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_by UUID REFERENCES users(id),
+    deleted_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -112,6 +115,15 @@ CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at DESC);
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_reports_is_deleted ON reports(is_deleted);
+CREATE INDEX IF NOT EXISTS idx_reports_deleted_at ON reports(deleted_at DESC);
+
+-- =============================================
+-- MIGRATE REPORTS SOFT DELETE SUPPORT
+-- =============================================
+ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS deleted_by UUID REFERENCES users(id);
+ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;
 
 -- =============================================
 -- UPDATED_AT TRIGGER FUNCTION

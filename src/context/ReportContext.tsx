@@ -31,6 +31,9 @@ interface ReportContextType {
     reviewNotes?: string
   ) => Promise<void>;
 
+  deleteReport: (id: string) => Promise<void>;
+  recoverReport: (id: string) => Promise<void>;
+
   getReportById: (
     id: string
   ) => IncidentReport | undefined;
@@ -93,6 +96,9 @@ function mapApiReport(
       report.reviewNotes || "",
     resolutionNotes:
       report.resolutionNotes || "",
+    isDeleted: report.isDeleted || false,
+    deletedBy: report.deletedBy || "",
+    deletedAt: report.deletedAt || "",
   };
 }
 
@@ -216,6 +222,34 @@ export function ReportProvider({
       []
     );
 
+  const deleteReport =
+    useCallback(
+      async (id: string) => {
+        try {
+          await api.deleteReport(id);
+          await refreshReports();
+        } catch (error) {
+          console.error('Delete report failed:', error);
+          throw error;
+        }
+      },
+      [refreshReports]
+    );
+
+  const recoverReport =
+    useCallback(
+      async (id: string) => {
+        try {
+          await api.recoverReport(id);
+          await refreshReports();
+        } catch (error) {
+          console.error('Recover report failed:', error);
+          throw error;
+        }
+      },
+      [refreshReports]
+    );
+
   const getReportById =
     useCallback(
       (id: string) => {
@@ -314,6 +348,8 @@ export function ReportProvider({
         getReportById,
         getReportsByUser,
         getFilteredReports,
+        deleteReport,
+        recoverReport,
         refreshReports,
       }}
     >

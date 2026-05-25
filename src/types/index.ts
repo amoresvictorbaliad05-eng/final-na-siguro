@@ -52,6 +52,9 @@ export interface IncidentReport {
   reviewedAt?: string;
   reviewNotes?: string;
   resolutionNotes?: string;
+  isDeleted?: boolean;
+  deletedBy?: string;
+  deletedAt?: string;
 }
 
 export interface ActivityLog {
