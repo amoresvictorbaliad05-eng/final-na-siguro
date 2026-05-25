@@ -13,7 +13,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, isSuperAdmin } = useAuth();
 
   const navigate = useNavigate();
 
