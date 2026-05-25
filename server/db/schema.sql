@@ -121,9 +121,9 @@ CREATE INDEX IF NOT EXISTS idx_reports_deleted_at ON reports(deleted_at DESC);
 -- =============================================
 -- MIGRATE REPORTS SOFT DELETE SUPPORT
 -- =============================================
-ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
-ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS deleted_by UUID REFERENCES users(id);
-ALTER TABLE IF NOT EXISTS reports ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS deleted_by UUID REFERENCES users(id);
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;
 
 -- =============================================
 -- UPDATED_AT TRIGGER FUNCTION
