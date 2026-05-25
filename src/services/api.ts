@@ -196,8 +196,32 @@ const api = {
    * ANALYTICS
    */
 
+  getAnalyticsOverview: () =>
+    request("/analytics/overview"),
+
+  getAnalyticsCategories: () =>
+    request("/analytics/categories"),
+
+  getAnalyticsStatusDistribution: () =>
+    request("/analytics/status-distribution"),
+
+  getAnalyticsMonthlyTrend: () =>
+    request("/analytics/monthly-trend"),
+
+  getAnalyticsSeverityDistribution: () =>
+    request("/analytics/severity-distribution"),
+
+  getAnalyticsDayOfWeek: () =>
+    request("/analytics/day-of-week"),
+
+  getAnalyticsCategoryByStatus: () =>
+    request("/analytics/category-by-status"),
+
+  getAnalyticsBarangayDistribution: () =>
+    request("/analytics/barangay-distribution"),
+
   getAnalytics: () =>
-    request("/analytics"),
+    request("/analytics/overview"),
 
   /**
    * LOGS

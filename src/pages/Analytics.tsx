@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { useReports } from '../context/ReportContext';
+import { useState, useEffect } from 'react';
+import api from '../services/api';
 import {
   IncidentCategory,
   CATEGORY_LABELS,
@@ -26,118 +26,156 @@ import {
 import {
   TrendingUp,
   AlertTriangle,
-  MapPin,
   Calendar,
   BarChart3,
 } from 'lucide-react';
 
+interface AnalyticsOverview {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  resolved: number;
+  underReview: number;
+  today: number;
+  thisWeek: number;
+  totalUsers: number;
+}
+
+interface CountEntry {
+  name: string;
+  value: number;
+  color?: string;
+}
+
+interface TrendEntry {
+  name: string;
+  count: number;
+}
+
+interface CategoryStatusEntry {
+  name: string;
+  pending: number;
+  approved: number;
+  rejected: number;
+  resolved: number;
+}
+
 export default function Analytics() {
-  const { reports } = useReports();
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [categoryData, setCategoryData] = useState<CountEntry[]>([]);
+  const [statusData, setStatusData] = useState<CountEntry[]>([]);
+  const [severityData, setSeverityData] = useState<CountEntry[]>([]);
+  const [monthlyTrend, setMonthlyTrend] = useState<TrendEntry[]>([]);
+  const [dayOfWeekData, setDayOfWeekData] = useState<TrendEntry[]>([]);
+  const [categoryByStatus, setCategoryByStatus] = useState<CategoryStatusEntry[]>([]);
+  const [topBarangay, setTopBarangay] = useState<string>('N/A');
+  const [loading, setLoading] = useState(true);
 
-  // Category distribution
-  const categoryData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    reports.forEach(r => {
-      counts[r.category] = (counts[r.category] || 0) + 1;
-    });
-    return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({
-      name: label,
-      value: counts[key] || 0,
-      color: CATEGORY_COLORS[key as IncidentCategory],
-    })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
-  }, [reports]);
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const [overviewRes, categoriesRes, statusRes, trendRes, severityRes, daysRes, categoryStatusRes, barangayRes] = await Promise.all([
+          api.getAnalyticsOverview(),
+          api.getAnalyticsCategories(),
+          api.getAnalyticsStatusDistribution(),
+          api.getAnalyticsMonthlyTrend(),
+          api.getAnalyticsSeverityDistribution(),
+          api.getAnalyticsDayOfWeek(),
+          api.getAnalyticsCategoryByStatus(),
+          api.getAnalyticsBarangayDistribution(),
+        ]);
 
-  // Status distribution
-  const statusData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    reports.forEach(r => {
-      counts[r.status] = (counts[r.status] || 0) + 1;
-    });
-    return Object.entries(STATUS_LABELS).map(([key, label]) => ({
-      name: label,
-      value: counts[key] || 0,
-      color: STATUS_COLORS[key as keyof typeof STATUS_COLORS],
-    })).filter(d => d.value > 0);
-  }, [reports]);
+        setOverview(overviewRes);
 
-  // Severity distribution
-  const severityData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    reports.forEach(r => {
-      counts[r.severity] = (counts[r.severity] || 0) + 1;
-    });
-    return Object.entries(SEVERITY_LABELS).map(([key, label]) => ({
-      name: label,
-      value: counts[key] || 0,
-    }));
-  }, [reports]);
+        setCategoryData(
+          (categoriesRes.categories || []).map((row: any) => ({
+            name: CATEGORY_LABELS[row.category as IncidentCategory] || row.category,
+            value: parseInt(row.count, 10),
+            color: CATEGORY_COLORS[row.category as IncidentCategory] || undefined,
+          }))
+        );
 
-  // Monthly trend (last 6 months)
-  const monthlyTrend = useMemo(() => {
-    const months: Record<string, number> = {};
-    const now = new Date();
+        setStatusData(
+          (statusRes.statuses || []).map((row: any) => ({
+            name: STATUS_LABELS[row.status as keyof typeof STATUS_LABELS] || row.status,
+            value: parseInt(row.count, 10),
+            color: STATUS_COLORS[row.status as keyof typeof STATUS_COLORS],
+          }))
+        );
 
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = d.toLocaleString('en-US', { month: 'short', year: '2-digit' });
-      months[key] = 0;
-    }
+        setMonthlyTrend(
+          (trendRes.trend || []).map((row: any) => ({
+            name: row.month,
+            count: parseInt(row.count, 10),
+          }))
+        );
 
-    reports.forEach(r => {
-      const d = new Date(r.createdAt);
-      const key = d.toLocaleString('en-US', { month: 'short', year: '2-digit' });
-      if (months[key] !== undefined) {
-        months[key]++;
+        setSeverityData(
+          (severityRes.severities || []).map((row: any) => ({
+            name: SEVERITY_LABELS[row.severity as keyof typeof SEVERITY_LABELS] || row.severity,
+            value: parseInt(row.count, 10),
+          }))
+        );
+
+        setDayOfWeekData(
+          (daysRes.days || []).map((row: any) => ({
+            name: row.day,
+            count: parseInt(row.count, 10),
+          }))
+        );
+
+        setCategoryByStatus(
+          Object.entries(categoryStatusRes.data || {}).map(([category, statusCounts]) => {
+            const counts = statusCounts as any;
+            return {
+              name: CATEGORY_LABELS[category as IncidentCategory] || category,
+              pending: parseInt(counts.pending || 0, 10),
+              approved: parseInt(counts.approved || 0, 10),
+              rejected: parseInt(counts.rejected || 0, 10),
+              resolved: parseInt(counts.resolved || 0, 10),
+            };
+          })
+        );
+
+        const sortedBarangays = (barangayRes.barangays || [])
+          .map((row: any) => ({
+            name: String(row.barangay).replace('Brgy. ', ''),
+            value: parseInt(row.count, 10),
+          }))
+          .sort((a: any, b: any) => b.value - a.value);
+
+        setTopBarangay(sortedBarangays[0]?.name || 'N/A');
+      } catch (error) {
+        console.error('Failed to fetch analytics data:', error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return Object.entries(months).map(([name, count]) => ({ name, count }));
-  }, [reports]);
-
-  // Barangay distribution
-  const barangayData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    reports.forEach(r => {
-      counts[r.barangay] = (counts[r.barangay] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .map(([name, value]) => ({ name: name.replace('Brgy. ', ''), value }))
-      .sort((a, b) => b.value - a.value);
-  }, [reports]);
-
-  // Day of week distribution
-  const dayOfWeekData = useMemo(() => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const counts = new Array(7).fill(0);
-    reports.forEach(r => {
-      const day = new Date(r.createdAt).getDay();
-      counts[day]++;
-    });
-    return days.map((name, i) => ({ name, count: counts[i] }));
-  }, [reports]);
-
-  // Category by status stacked data
-  const categoryByStatus = useMemo(() => {
-    return Object.entries(CATEGORY_LABELS).map(([key, label]) => {
-      const catReports = reports.filter(r => r.category === key);
-      return {
-        name: label.length > 12 ? label.substring(0, 12) + '...' : label,
-        pending: catReports.filter(r => r.status === 'pending').length,
-        approved: catReports.filter(r => r.status === 'approved').length,
-        rejected: catReports.filter(r => r.status === 'rejected').length,
-        resolved: catReports.filter(r => r.status === 'resolved').length,
-      };
-    }).filter(d => d.pending + d.approved + d.rejected + d.resolved > 0);
-  }, [reports]);
+    fetchAnalytics();
+  }, []);
 
   const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899'];
 
-  const totalReports = reports.length;
-  const avgPerDay = (totalReports / 180).toFixed(1);
+  const totalReports = overview?.total ?? 0;
+  const dailyReports = overview?.today ?? 0;
+  const weeklyReports = overview?.thisWeek ?? 0;
   const resolutionRate = totalReports > 0
-    ? ((reports.filter(r => r.status === 'resolved').length / totalReports) * 100).toFixed(1)
+    ? ((overview?.resolved ?? 0) / totalReports * 100).toFixed(1)
     : '0';
   const mostCommonCategory = categoryData[0]?.name || 'N/A';
+
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-slate-50 px-4">
+        <div className="rounded-2xl bg-white px-6 py-6 shadow-sm">
+          <p className="text-lg font-medium text-slate-900">Loading analytics…</p>
+          <p className="mt-2 text-sm text-slate-500">Fetching the latest database-driven insights.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50">
@@ -154,9 +192,9 @@ export default function Analytics() {
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: 'Total Reports', value: totalReports, icon: BarChart3, color: 'text-blue-600 bg-blue-100' },
-            { label: 'Avg. Per Day', value: avgPerDay, icon: Calendar, color: 'text-purple-600 bg-purple-100' },
-            { label: 'Resolution Rate', value: `${resolutionRate}%`, icon: TrendingUp, color: 'text-green-600 bg-green-100' },
-            { label: 'Most Common', value: mostCommonCategory, icon: AlertTriangle, color: 'text-amber-600 bg-amber-100' },
+            { label: "Today's Reports", value: dailyReports, icon: Calendar, color: 'text-purple-600 bg-purple-100' },
+            { label: 'This Week', value: weeklyReports, icon: TrendingUp, color: 'text-green-600 bg-green-100' },
+            { label: 'Resolution Rate', value: `${resolutionRate}%`, icon: AlertTriangle, color: 'text-amber-600 bg-amber-100' },
           ].map(stat => {
             const Icon = stat.icon;
             return (
@@ -302,32 +340,6 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* Barangay Distribution */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-                <MapPin className="h-5 w-5 text-slate-400" />
-                Community Hotspots
-              </h3>
-              <p className="mt-1 text-sm text-slate-500">Incident distribution by community zone</p>
-            <div className="mt-6 h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barangayData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" width={90} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                    }}
-                  />
-                  <Bar dataKey="value" fill="#f59e0b" radius={[0, 8, 8, 0]} name="Reports" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
           {/* Severity Distribution */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">Severity Breakdown</h3>
@@ -407,14 +419,14 @@ export default function Analytics() {
                 description: 'Day with highest incident reports',
               },
               {
-                title: 'Top Area',
-                value: barangayData[0]?.name || 'N/A',
-                description: `${barangayData[0]?.value || 0} reports filed`,
+                title: 'Top Category',
+                value: mostCommonCategory,
+                description: 'Most frequently reported incident type',
               },
               {
-                title: 'Response Rate',
-                value: `${resolutionRate}%`,
-                description: 'Reports successfully resolved',
+                title: 'Top Area',
+                value: topBarangay || 'N/A',
+                description: 'Most reported barangay',
               },
             ].map(insight => (
               <div key={insight.title} className="rounded-xl bg-white p-4">

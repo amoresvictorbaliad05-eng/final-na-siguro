@@ -136,6 +136,10 @@ export default function ReportDetail() {
                   <XCircle className="h-4 w-4" />
                   Reject
                 </button>
+              </div>
+            )}
+            {isAdmin() && report.status === 'approved' && (
+              <div className="flex gap-2">
                 <button
                   onClick={() => { setActionType('resolve'); setShowReviewForm(true); }}
                   className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
