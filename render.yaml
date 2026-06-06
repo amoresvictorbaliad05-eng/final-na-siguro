@@ -1,8 +1,7 @@
 services:
   - type: web
     name: barangay-bantay
-    env: node
+    env: docker
     plan: free
     branch: main
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    dockerfilePath: Dockerfile
